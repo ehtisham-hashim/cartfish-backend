@@ -5,11 +5,12 @@ const userSchema = new Schema(
     name: {
       type: String,
       minlength: 3,
-      role: {
-        type: String,
-        enum: ["user", "seller", "admin"],
-        default: "user",
-      },
+    },
+    role: {
+      type: String,
+      enum: ["user", "seller", "admin"],
+      default: "user",
+      required: true,
     },
     email: {
       type: String,
@@ -22,8 +23,13 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
-      minLength: [8, "Email must be 6 characters long"],
+      minLength: [8, "Password must be 8 characters long"],
       trim: true,
+    },
+    deliveryAddress: {
+      type: String,
+      required: true,
+      minlength: [6, "Address must be 6 characters long"],
     },
   },
   { timestamps: true },
