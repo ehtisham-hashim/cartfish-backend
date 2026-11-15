@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import cors from "cors";
+import morgan from "morgan";
 import connectDB from "./config/db.js";
 import userRouter from "./routes/user.routes.js";
 
@@ -8,12 +9,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+//Main APIs
+
 app.use("/api/v1/users", userRouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
+
+  if (statusCode >= 500) {
+    console.error(`[Server Error 500] ${req.method} ${req.originalUrl}:`, err);
+  } else {
+    console.warn(`[Client Error ${statusCode}] ${err.message}`);
+  }
+
   res.status(statusCode).json({
     success: false,
     message: err.message || "Internal Server Error",
