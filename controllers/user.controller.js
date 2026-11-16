@@ -5,6 +5,7 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import hashPass from "../utils/hashPassword.js";
+import generateToken from "../utils/generateToken.js";
 import jwt from "jsonwebtoken";
 
 const createdUserSchema = Joi.object({
@@ -74,13 +75,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid credentials");
   }
   //create token
-  const token = jwt.sign(
-    { _id: user._id, name: user.name },
-    process.env.JWT_KEY,
-    {
-      expiresIn: "2d",
-    },
-  );
+  const token = generateToken({ _id: user._id, name: user.name });
   return res.status(200).json(
     new ApiResponse(
       200,
