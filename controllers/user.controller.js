@@ -86,3 +86,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     ),
   );
 });
+// Get the profile
+export const getUserProfile = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User profile fetched successfully"));
+});
