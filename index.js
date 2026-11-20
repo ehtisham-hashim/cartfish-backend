@@ -4,7 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
 import userRouter from "./routes/user.routes.js";
-
+import authRouter from "./routes/auth.routes.js";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Main APIs
-
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 
 app.use((err, req, res, next) => {
