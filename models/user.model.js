@@ -22,13 +22,16 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
       minLength: [8, "Password must be 8 characters long"],
       trim: true,
     },
+    googleId: {
+      type: String,
+    },
     deliveryAddress: {
       type: String,
-      required: true,
+      required: false,
       minlength: [6, "Address must be 6 characters long"],
     },
   },

@@ -1,6 +1,5 @@
-const { default: User } = require("../models/user.model.js");
-
-var GoogleStrategy = require("passport-google-oauth2").Strategy;
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth2";
 
 passport.use(
   new GoogleStrategy(
@@ -11,9 +10,7 @@ passport.use(
       passReqToCallback: true,
     },
     function (request, accessToken, refreshToken, profile, done) {
-      User.findOrCreate({ googleId: profile.id }, function (err, user) {
-        return done(err, user);
-      });
+      return done(null, profile);
     },
   ),
 );
