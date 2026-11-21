@@ -3,8 +3,9 @@ import "dotenv/config";
 import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
-import userRouter from "./routes/user.routes.js";
-import authRouter from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import categoryRoutes from "./routes/category.routes.js";
 import "./config/passport.js";
 
 const app = express();
@@ -16,8 +17,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Main APIs
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/category", categoryRoutes);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
