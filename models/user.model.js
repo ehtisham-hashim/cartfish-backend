@@ -29,6 +29,9 @@ const userSchema = new Schema(
     googleId: {
       type: String,
     },
+    facebookId: {
+      type: String,
+    },
     deliveryAddress: {
       type: String,
       required: false,
