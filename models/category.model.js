@@ -1,14 +1,23 @@
 import mongoose, { Schema } from "mongoose";
 //Alhamdulilah---The start of the new Module. of the course
-const categorySchema = new Schema(
+const categorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      require: true,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      index: true,
     },
     icon: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true },
