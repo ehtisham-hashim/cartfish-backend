@@ -21,6 +21,10 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/category", categoryRoutes);
 
+// Serve uploaded images statically
+app.use("/upload/category", express.static("upload/category"));
+app.use("/upload/products", express.static("upload/products"));
+
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
 
