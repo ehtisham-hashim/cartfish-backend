@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import path from "path";
 import crypto from "crypto";
 import Joi from "joi";
 import Product from "../models/product.model.js";
@@ -6,6 +7,7 @@ import Category from "../models/category.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import mongoose from "mongoose";
 
 const createProductSchema = Joi.object({
   title: Joi.string().trim().min(3).max(100).required(),
@@ -152,4 +154,83 @@ export const getAllProducts = asyncHandler(async (req, res) => {
       "Products fetched successfully",
     ),
   );
+});
+// GET /api/v1/products/suggestions?search=ip — Fast autocomplete suggestions
+export const getProductSuggestions = asyncHandler(async (req, res) => {
+  const search = req.query.search?.trim() || "";
+  if (search.length < 2) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, [], "Enter at least 2 characters"));
+  }
+
+  const products = await Product.find({
+    title: { $regex: escapeRegex(search), $options: "i" },
+  })
+    .select("_id title slug price")
+    .limit(10)
+    .lean();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, products, "Suggestions fetched successfully"));
+});
+
+// GET /api/v1/products/:id — Single Product detail with populated relations
+export const getSingleProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    throw new ApiError(400, "Invalid product ID format");
+  }
+
+  const product = await Product.findById(id)
+    .populate("seller", "_id name email")
+    .populate("category", "_id name slug")
+    .populate("reviews.user", "_id name")
+    .select("-__v")
+    .lean();
+
+  if (!product) throw new ApiError(404, "Product not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, product, "Product fetched successfully"));
+});
+
+// DELETE /api/v1/products/:id — Admin or Owning Seller only (cleans up images)
+export const deleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) {
+    throw new ApiError(400, "Invalid product ID format");
+  }
+
+  const product = await Product.findById(id).select("seller images");
+  if (!product) throw new ApiError(404, "Product not found");
+
+  const isOwner = req.user._id.equals(product.seller);
+  if (req.user.role !== "admin" && !isOwner) {
+    throw new ApiError(
+      403,
+      "Forbidden - Only admin or the product seller can delete this product",
+    );
+  }
+
+  await product.deleteOne();
+
+  // Clean up all product images from disk
+  if (product.images?.length > 0) {
+    await Promise.allSettled(
+      product.images.map((imageName) => {
+        const safeFile = path.basename(imageName);
+        const fullPath = path.resolve("upload", "products", safeFile);
+        return fs.unlink(fullPath).catch((err) => {
+          console.warn(`Could not delete image ${safeFile}:`, err.message);
+        });
+      }),
+    );
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Product deleted successfully"));
 });
