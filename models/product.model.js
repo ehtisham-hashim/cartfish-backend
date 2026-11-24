@@ -36,7 +36,6 @@ const productSchema = new Schema(
       count: { type: Number, default: 0, min: 0 },
     },
     reviews: [reviewSubSchema],
-    isActive: { type: Boolean, default: true, index: true },
   },
   { timestamps: true },
 );
