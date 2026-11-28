@@ -1,12 +1,18 @@
 import mongoose from "mongoose";
+import logger from "./logger.js";
+import { flushLogsAndExit } from "../utils/shutdown.js";
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.DATABASE_URL);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    const conn = await mongoose.connect(process.env.DATABASE_URL, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
+    logger.error(`MongoDB Connection Error: ${error.message}`, {
+      stack: error.stack,
+    });
+    flushLogsAndExit(1);
   }
 };
 

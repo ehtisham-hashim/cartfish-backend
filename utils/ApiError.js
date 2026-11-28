@@ -11,6 +11,8 @@ class ApiError extends Error {
     this.message = message;
     this.success = false;
     this.errors = errors;
+    // Marks this as an expected, safe-to-expose operational error (vs. unexpected crash)
+    this.isOperational = true;
 
     if (stack) {
       this.stack = stack;
